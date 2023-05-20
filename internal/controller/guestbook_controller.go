@@ -50,6 +50,7 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
+	log.Log.Info("bla bla")
 
 	return ctrl.Result{}, nil
 }
