@@ -13,3 +13,10 @@ operator-sdk init --domain bpmf.io --repo github.com/bpmfio/bpmf-operator --plug
 ```sh
 operator-sdk create api --group webapp --version v1 --kind Guestbook --resource --controller
 ```
+
+本地测试
+
+```sh
+make install run
+kubectl apply -f config/samples/webapp_v1_guestbook.yaml
+```

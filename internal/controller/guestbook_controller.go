@@ -19,12 +19,12 @@ package controller
 import (
 	"context"
 
+	webappv1 "github.com/bpmfio/bpmf-operator/api/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	webappv1 "github.com/bpmfio/bpmf-operator/api/v1"
 )
 
 // GuestbookReconciler reconciles a Guestbook object
@@ -47,10 +47,21 @@ type GuestbookReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	log := log.FromContext(ctx)
 
 	// TODO(user): your logic here
-	log.Log.Info("bla bla")
+	guestbook := &webappv1.Guestbook{}
+	err := r.Get(ctx, req.NamespacedName, guestbook)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			log.Info("guestbook resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		log.Error(err, "Failed to get guestbook")
+		return ctrl.Result{}, err
+	}
+
+	log.Info("bla bla", "spec.foo", guestbook.Spec.Foo)
 
 	return ctrl.Result{}, nil
 }
