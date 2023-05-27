@@ -40,6 +40,7 @@ type GuestbookStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:shortName=gb
 
 // Guestbook is the Schema for the guestbooks API
 type Guestbook struct {
