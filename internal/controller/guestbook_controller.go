@@ -76,6 +76,8 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 			// Define a new deployment
 			var replicas int32 = 1
+
+			// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
 			labels := map[string]string{
 				"app.kubernetes.io/name":       "Guestbook",
 				"app.kubernetes.io/instance":   guestbook.Name,
@@ -136,5 +138,6 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 func (r *GuestbookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&webappv1.Guestbook{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
