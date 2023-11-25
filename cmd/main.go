@@ -33,7 +33,11 @@ import (
 
 	webappv1 "github.com/bpmfio/bpmf-operator/api/v1"
 	"github.com/bpmfio/bpmf-operator/internal/controller"
+	"github.com/bpmfio/bpmf-operator/internal/gatewayapi"
+
 	//+kubebuilder:scaffold:imports
+
+	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 var (
@@ -46,6 +50,7 @@ func init() {
 
 	utilruntime.Must(webappv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
+	utilruntime.Must(gwapiv1.AddToScheme(scheme))
 }
 
 func main() {
@@ -66,9 +71,9 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Scheme: scheme,
+		//MetricsBindAddress:     metricsAddr,
+		//Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "f5500808.bpmf.io",
@@ -97,6 +102,14 @@ func main() {
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
+
+	if err = (&gatewayapi.GatewayClassReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "GatewayClass")
+		os.Exit(1)
+	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")
