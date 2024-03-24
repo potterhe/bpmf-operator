@@ -11,9 +11,9 @@ spec:
     kind: Guestbook
     listKind: GuestbookList
     plural: guestbooks
-    singular: guestbook
     shortNames:
     - gb
+    singular: guestbook
   scope: Namespaced
   versions:
   - name: v1
