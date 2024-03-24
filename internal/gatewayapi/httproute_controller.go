@@ -28,55 +28,47 @@ import (
 	gwapiv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-const (
-	gatewayControllerName = "bpmf.io/gatewayclass-controller"
-)
-
-// GatewayClassReconciler reconciles a GatewayClass object
-type GatewayClassReconciler struct {
+// HTTPRouteReconciler reconciles a HTTPRoute object
+type HTTPRouteReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gatewayclasses,verbs=get;list;watch
-// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=gatewayclasses/status,verbs=get;update
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=HTTPRoutes,verbs=get;list;watch
+// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=HTTPRoutes/status,verbs=get;update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the GatewayClass object against the actual cluster state, and then
+// the HTTPRoute object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
-func (r *GatewayClassReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *HTTPRouteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 
-	gwc := new(gwapiv1.GatewayClass)
-	err := r.Get(ctx, req.NamespacedName, gwc)
+	httproute := new(gwapiv1.HTTPRoute)
+	err := r.Get(ctx, req.NamespacedName, httproute)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("gatewayclass resource not found. Ignoring since object must be deleted")
+			log.Info("HTTPRoute resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Failed to get gatewayclass")
+		log.Error(err, "Failed to get HTTPRoute")
 		return ctrl.Result{}, err
 	}
 
 	// TODO(user): your logic here
-	log.Info("bla bla", "gwc:", gwc, "status", gwc.Status)
-
-	if gwc.Spec.ControllerName == gatewayControllerName {
-
-	}
+	log.Info("bla bla", "HTTPRoute:", httproute.Spec.Rules, "status", httproute.Status)
 
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *GatewayClassReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *HTTPRouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&gwapiv1.GatewayClass{}).
+		For(&gwapiv1.HTTPRoute{}).
 		Complete(r)
 }
