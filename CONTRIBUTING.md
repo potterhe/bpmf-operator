@@ -15,6 +15,8 @@ operator-sdk create api --group webapp --version v1 --kind Guestbook --resource 
 本地测试
 
 ```sh
+$ kind create cluster --name=1.28 --image=kindest/node:v1.28.0
+
 make install run
 kubectl apply -f config/samples/webapp_v1_guestbook.yaml
 ```

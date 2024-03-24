@@ -10,3 +10,4 @@ metadata:
   name: guestbook-sample
 spec:
   # TODO(user): Add fields here
+  foo: a
