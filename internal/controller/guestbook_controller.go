@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	webappv1 "github.com/bpmfio/bpmf-operator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -30,6 +29,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	webappv1 "github.com/bpmfio/bpmf-operator/api/v1"
 )
 
 // GuestbookReconciler reconciles a Guestbook object
@@ -50,23 +51,23 @@ type GuestbookReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
 func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
 	// TODO(user): your logic here
 	guestbook := &webappv1.Guestbook{}
 	err := r.Get(ctx, req.NamespacedName, guestbook)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			log.Info("guestbook resource not found. Ignoring since object must be deleted")
+			logger.Info("guestbook resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Failed to get guestbook")
+		logger.Error(err, "Failed to get guestbook")
 		return ctrl.Result{}, err
 	}
 
-	log.Info("bla bla", "spec.foo", guestbook.Spec.Foo)
+	logger.Info("bla bla", "spec.foo", guestbook.Spec.Foo)
 
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
@@ -114,9 +115,9 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			// More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/owners-dependents/
 			ctrl.SetControllerReference(guestbook, dep, r.Scheme)
 
-			log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+			logger.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
 			if err = r.Create(ctx, dep); err != nil {
-				log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+				logger.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
 				return ctrl.Result{}, err
 			}
 
@@ -126,7 +127,7 @@ func (r *GuestbookReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			return ctrl.Result{RequeueAfter: time.Minute}, nil
 		}
 
-		log.Error(err, "Failed to get Deployment")
+		logger.Error(err, "Failed to get Deployment")
 		// Let's return the error for the reconciliation be re-trigged again
 		return ctrl.Result{}, err
 	}
